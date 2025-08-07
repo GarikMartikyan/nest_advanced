@@ -1,15 +1,28 @@
 import { Injectable } from '@nestjs/common';
 import { CreateMovieDto } from './dto/create-movie.dto';
 import { UpdateMovieDto } from './dto/update-movie.dto';
+import { Repository } from 'typeorm';
+import { InjectRepository } from '@nestjs/typeorm';
+import { MovieEntity } from './entities/movie.entity';
 
 @Injectable()
 export class MovieService {
-  create(createMovieDto: CreateMovieDto) {
-    return 'This action adds a new movie';
+  constructor(
+    @InjectRepository(MovieEntity)
+    private readonly movieRepository: Repository<MovieEntity>,
+  ) {}
+
+  async create(createMovieDto: CreateMovieDto) {
+    const movie = this.movieRepository.create(createMovieDto);
+    return await this.movieRepository.save(movie);
   }
 
   findAll() {
-    return `This action returns all movie`;
+    return this.movieRepository.find({
+      order: {
+        releaseYear: 'ASC',
+      },
+    });
   }
 
   findOne(id: number) {
