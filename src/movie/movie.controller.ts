@@ -10,7 +10,6 @@ import {
 import { MovieService } from './movie.service';
 import { CreateMovieDto } from './dto/create-movie.dto';
 import { UpdateMovieDto } from './dto/update-movie.dto';
-import { parseParamToInt } from '../common/utils/parseParamToInt';
 
 @Controller('movies')
 export class MovieController {
@@ -28,19 +27,16 @@ export class MovieController {
 
   @Get(':id')
   findOne(@Param('id') id: string) {
-    const parsedId = parseParamToInt(id);
-    return this.movieService.findOne(parsedId);
+    return this.movieService.findOne(id);
   }
 
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateMovieDto: UpdateMovieDto) {
-    const parsedId = parseParamToInt(id);
-    return this.movieService.update(parsedId, updateMovieDto);
+    return this.movieService.update(id, updateMovieDto);
   }
 
   @Delete(':id')
   remove(@Param('id') id: string) {
-    const parsedId = parseParamToInt(id);
-    return this.movieService.remove(parsedId);
+    return this.movieService.remove(id);
   }
 }

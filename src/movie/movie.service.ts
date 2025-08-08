@@ -19,13 +19,16 @@ export class MovieService {
 
   findAll() {
     return this.movieRepository.find({
+      where: {
+        isAvailable: true,
+      },
       order: {
         releaseYear: 'DESC',
       },
     });
   }
 
-  async findOne(id: number) {
+  async findOne(id: string) {
     const movie = await this.movieRepository.findOne({
       where: {
         id,
@@ -39,7 +42,7 @@ export class MovieService {
     return movie;
   }
 
-  async update(id: number, updateMovieDto: UpdateMovieDto) {
+  async update(id: string, updateMovieDto: UpdateMovieDto) {
     const movie = await this.findOne(id);
 
     Object.assign(movie, updateMovieDto);
@@ -47,7 +50,7 @@ export class MovieService {
     return await this.movieRepository.save(movie);
   }
 
-  async remove(id: number) {
+  async remove(id: string) {
     try {
       const movie = await this.findOne(id);
       await this.movieRepository.remove(movie);
