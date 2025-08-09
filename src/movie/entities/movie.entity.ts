@@ -2,10 +2,14 @@ import {
   Column,
   CreateDateColumn,
   Entity,
-  Generated,
-  PrimaryColumn,
+  JoinTable,
+  ManyToMany,
+  OneToMany,
+  PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
+import { ReviewEntity } from '../../review/entities/review.entity';
+import { ActorEntity } from '../../actor/entities/actor.entity';
 
 export enum MovieGenre {
   ACTION = 'action',
@@ -18,8 +22,7 @@ export enum MovieGenre {
 
 @Entity({ name: 'movies' })
 export class MovieEntity {
-  @PrimaryColumn()
-  @Generated('uuid')
+  @PrimaryGeneratedColumn('uuid')
   id: string;
 
   @Column({
@@ -58,6 +61,19 @@ export class MovieEntity {
 
   @Column({ type: 'enum', enum: MovieGenre, default: MovieGenre.DRAMA })
   genre: MovieGenre;
+
+  @OneToMany(() => ReviewEntity, (review) => review.movie)
+  reviews: ReviewEntity[];
+
+  @ManyToMany(() => ActorEntity, (actor) => actor.movies, {
+    cascade: true,
+  })
+  @JoinTable({
+    name: 'movie_actors',
+    joinColumn: { name: 'movie_id', referencedColumnName: 'id' },
+    inverseJoinColumn: { name: 'actor_id', referencedColumnName: 'id' },
+  })
+  actors: ActorEntity[];
 
   @Column({
     name: 'release_date',

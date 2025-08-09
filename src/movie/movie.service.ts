@@ -1,19 +1,32 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateMovieDto } from './dto/create-movie.dto';
 import { UpdateMovieDto } from './dto/update-movie.dto';
-import { Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { MovieEntity } from './entities/movie.entity';
+import { ActorService } from '../actor/actor.service';
 
 @Injectable()
 export class MovieService {
   constructor(
     @InjectRepository(MovieEntity)
     private readonly movieRepository: Repository<MovieEntity>,
+    private readonly actorService: ActorService,
   ) {}
 
   async create(createMovieDto: CreateMovieDto) {
-    const movie = this.movieRepository.create(createMovieDto);
+    const { actorIds, ...movieData } = createMovieDto;
+    console.log(actorIds);
+    const actors = await this.actorService.findAll({
+      where: { id: In(actorIds) },
+    });
+
+    if (!actors || actors.length !== actorIds.length) {
+      console.log(actors);
+      throw new NotFoundException(`One or more actors not found`);
+    }
+
+    const movie = this.movieRepository.create({ ...movieData, actors });
     return await this.movieRepository.save(movie);
   }
 
